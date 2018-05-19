@@ -1,3 +1,5 @@
+import colors
+
 def render_all(con, entities, game_map, fov_recompute, root_console, screen_width, screen_height, colors):
     # draw all tiles in the map
     if fov_recompute:
@@ -20,7 +22,6 @@ def render_all(con, entities, game_map, fov_recompute, root_console, screen_widt
     # draw all entities in the list
     for entity in entities:
         draw_entity(con, entity, game_map.fov)
-
 
     root_console.blit(con, 0, 0, screen_width, screen_height, 0, 0)
 
