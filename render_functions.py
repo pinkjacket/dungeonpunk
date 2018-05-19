@@ -7,7 +7,26 @@ class RenderOrder(Enum):
     ACTOR = 3
 
 
-def render_all(con, entities, player, game_map, fov_recompute, root_console, screen_width, screen_height, colors):
+def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_color, string_color):
+    # render a bar (health, energy, etc)
+    bar_width = int(float(value) / maximum * total_width)
+
+    # render background
+    panel.draw_rect(x, y, total_width, 1, None, bg=back_color)
+
+    # draw bar on top
+    if bar_width > 0:
+        panel.draw_rect(x, y, bar_width, 1, None, bg=bar_color)
+
+    # centered text for values
+    text = name + ": " + str(value) + "/" + str(maximum)
+    x_centered = x + int((total_width-len(text)) / 2)
+
+    panel.draw_str(x_centered, y, text, fg=string_color, bg=None)
+
+
+def render_all(con, panel, entities, player, game_map, fov_recompute, root_console, screen_width, screen_height,
+               bar_width, panel_height, panel_y, colors):
     # draw all tiles in the map
     if fov_recompute:
         for x, y in game_map:
@@ -32,9 +51,14 @@ def render_all(con, entities, player, game_map, fov_recompute, root_console, scr
     for entity in entities_in_render_order:
         draw_entity(con, entity, game_map.fov)
 
-    con.draw_str(1, screen_height - 2, "HP: {0:02}/{1:02}".format(player.fighter.hp, player.fighter.max_hp))
-
     root_console.blit(con, 0, 0, screen_width, screen_height, 0, 0)
+
+    panel.clear(fg=colors.get("white"), bg=colors.get("black"))
+
+    render_bar(panel, 1, 1, bar_width, "HP", player.fighter.hp, player.fighter.max_hp,
+               colors.get("light_red"), colors.get("darker_red"), colors.get("white"))
+
+    root_console.blit(panel, 0, panel_y, screen_width, panel_height, 0, 0)
 
 
 def clear_all(con, entities):
