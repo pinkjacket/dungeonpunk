@@ -58,7 +58,11 @@ def main():
         "dark_cyan": (0, 191, 191),
         "copper": (197, 136, 124),
         "gold": (229, 191, 0),
-        "silver": (203, 203, 203)
+        "silver": (203, 203, 203),
+        'light_cyan': (114, 255, 255),
+        'light_pink': (255, 114, 184),
+        "light_sky": (115, 220, 255),
+        "sky": (0, 191, 255)
     }
 
     fighter_component = Fighter(hp=40, defense=2, power=5)
@@ -165,7 +169,7 @@ def main():
             item = player.inventory.items[inventory_index]
 
             if game_state == GameStates.SHOW_INVENTORY:
-                player_turn_results.extend(player.inventory.use(item, colors))
+                player_turn_results.extend(player.inventory.use(item, colors, entities=entities, game_map=game_map))
             elif game_state == GameStates.DROP_INVENTORY:
                 player_turn_results.extend(player.inventory.drop_item(item, colors))
 
