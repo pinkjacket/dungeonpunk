@@ -1,4 +1,6 @@
 from enum import Enum
+from game_states import GameStates
+from menus import inventory_menu
 
 
 class RenderOrder(Enum):
@@ -36,7 +38,7 @@ def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_c
 
 
 def render_all(con, panel, entities, player, game_map, fov_recompute, root_console, message_log, screen_width,
-               screen_height, bar_width, panel_height, panel_y, mouse_coordinates, colors):
+               screen_height, bar_width, panel_height, panel_y, mouse_coordinates, colors, game_state):
 
     # draw all tiles in the map
     if fov_recompute:
@@ -78,6 +80,14 @@ def render_all(con, panel, entities, player, game_map, fov_recompute, root_conso
     panel.draw_str(1, 0, get_names_under_mouse(mouse_coordinates, entities, game_map))
 
     root_console.blit(panel, 0, panel_y, screen_width, panel_height, 0, 0)
+
+    if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
+        if game_state == GameStates.SHOW_INVENTORY:
+            inventory_title = "Press the key next to an item to use it, or Esc to close.\n"
+        else:
+            inventory_title = "Press the key next to an item to drop it, or Esc to close.\n"
+
+        inventory_menu(con, root_console, inventory_title, player.inventory, 50, screen_width, screen_height)
 
 
 def clear_all(con, entities):
