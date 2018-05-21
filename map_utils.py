@@ -5,7 +5,8 @@ from components.ai import BasicMonster
 from components.fighter import Fighter
 from components.item import Item
 from render_functions import RenderOrder
-from item_functions import heal, seeker_bolt
+from item_functions import heal, seeker_bolt, flame_grenade
+from game_messages import Message
 
 
 class GameMap(Map):
@@ -97,6 +98,12 @@ def place_entities(room, entities, max_monsters_per_room, max_items_per_room, co
             if item_chance < 70:
                 item_component = Item(use_function=heal, amount=10)
                 item = Entity(x, y, "!", colors.get("violet"), "health drink", render_order=RenderOrder.ITEM,
+                              item=item_component)
+            elif item_chance < 85:
+                item_component = Item(use_function=flame_grenade, targeting=True, targeting_message=Message(
+                    "Left-click where you'd like to throw the grenade, or right-click to cancel.",
+                    colors.get("light_cyan")), damage=12, radius=3)
+                item = Entity(x, y, "*", colors.get("red"), "flame grenade", render_order=RenderOrder.ITEM,
                               item=item_component)
             else:
                 item_component = Item(use_function=seeker_bolt, damage=20, maximum_range=5)
