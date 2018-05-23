@@ -1,4 +1,5 @@
 from game_messages import Message
+from components.ai import ConfusedMonster
 
 
 def heal(*args, **kwargs):
@@ -75,5 +76,37 @@ def flame_grenade(*args, **kwargs):
             results.append({"message": Message("The {0} is burned for {1} damage!".format(entity.name, damage),
                                                colors.get("orange"))})
             results.extend(entity.fighter.take_damage(damage))
+
+    return results
+
+
+def confuse(*args, **kwargs):
+    # confuses enemy causing them to move randomly, maybe reskin later
+    colors = args[1]
+
+    entities = kwargs.get("entities")
+    game_map = kwargs.get("game_map")
+    target_x = kwargs.get("target_x")
+    target_y = kwargs.get("target_y")
+
+    results = []
+
+    if not game_map.fov[target_x, target_y]:
+        results.append({"consumed": False, "message": Message("You can't aim where you can't see!",
+                                                              colors.get("yellow"))})
+        return results
+
+    for entity in entities:
+        if entity.x == target_x and entity.y == target_y and entity.ai:
+            confused_ai = ConfusedMonster(entity.ai, 6)
+
+            confused_ai.owner = entity
+            entity.ai = confused_ai
+
+            results.append({"consumed": True, "message": Message("The {0}'s expression dulls, as they begin to stumble around!".format(entity.name),
+                                                                 colors.get("light_green"))})
+            break
+    else:
+        results.append({"consumed": False, "message": Message("There's no target here!", colors.get("yellow"))})
 
     return results

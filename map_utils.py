@@ -5,7 +5,7 @@ from components.ai import BasicMonster
 from components.fighter import Fighter
 from components.item import Item
 from render_functions import RenderOrder
-from item_functions import heal, seeker_bolt, flame_grenade
+from item_functions import heal, seeker_bolt, flame_grenade, confuse
 from game_messages import Message
 
 
@@ -99,11 +99,16 @@ def place_entities(room, entities, max_monsters_per_room, max_items_per_room, co
                 item_component = Item(use_function=heal, amount=10)
                 item = Entity(x, y, "!", colors.get("violet"), "health drink", render_order=RenderOrder.ITEM,
                               item=item_component)
-            elif item_chance < 85:
+            elif item_chance < 80:
                 item_component = Item(use_function=flame_grenade, targeting=True, targeting_message=Message(
                     "Left-click where you'd like to throw the grenade, or right-click to cancel.",
                     colors.get("light_cyan")), damage=12, radius=3)
                 item = Entity(x, y, "*", colors.get("red"), "flame grenade", render_order=RenderOrder.ITEM,
+                              item=item_component)
+            elif item_chance < 90:
+                item_component = Item(use_function=confuse, targeting=True, targeting_message=Message(
+                    "Left-click an enemy you'd like to confuse, or right-click to cancel.", colors.get("light_cyan")))
+                item = Entity(x, y, "*", colors.get("light_pink"), "scrambler", render_order=RenderOrder.ITEM,
                               item=item_component)
             else:
                 item_component = Item(use_function=seeker_bolt, damage=20, maximum_range=5)
