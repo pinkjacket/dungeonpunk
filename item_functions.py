@@ -81,7 +81,8 @@ def flame_grenade(*args, **kwargs):
 
 
 def confuse(*args, **kwargs):
-    # confuses enemy causing them to move randomly, maybe reskin later
+    # confuses enemy causing them to move randomly
+    #todo: reskin
     colors = args[1]
 
     entities = kwargs.get("entities")
@@ -103,8 +104,9 @@ def confuse(*args, **kwargs):
             confused_ai.owner = entity
             entity.ai = confused_ai
 
-            results.append({"consumed": True, "message": Message("The {0}'s expression dulls, as they begin to stumble around!".format(entity.name),
-                                                                 colors.get("light_green"))})
+            results.append({"consumed": True,
+                            "message": Message("The {0}'s expression dulls, as they begin to stumble around!".format(entity.name),
+                                               colors.get("light_green"))})
             break
     else:
         results.append({"consumed": False, "message": Message("There's no target here!", colors.get("yellow"))})

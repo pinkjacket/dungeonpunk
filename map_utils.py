@@ -68,7 +68,7 @@ def place_entities(room, entities, max_monsters_per_room, max_items_per_room, co
         if not any([entity for entity in entities if entity.x == x and entity.y == y]):
             choice = randint(0, 100)
             if choice < 60:
-                fighter_component = Fighter(hp=10, defense=0, power=3)
+                fighter_component = Fighter(hp=10, defense=0, power=3, xp=50)
                 ai_component = BasicMonster()
                 # withered husk
 
@@ -76,14 +76,14 @@ def place_entities(room, entities, max_monsters_per_room, max_items_per_room, co
                                  render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
             elif choice < 60 + 30:
                 # rusted automaton
-                fighter_component = Fighter(hp=16, defense=1, power=4)
+                fighter_component = Fighter(hp=16, defense=1, power=4, xp=75)
                 ai_component = BasicMonster()
 
                 monster = Entity(x, y, "a", colors.get("brass"), "rusted automaton", blocks=True,
                                  render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
             else:
                 # kobold bandit
-                fighter_component = Fighter(hp=20, defense=0, power=5)
+                fighter_component = Fighter(hp=20, defense=0, power=5, xp=100)
                 ai_component = BasicMonster()
 
                 monster = Entity(x, y, "b", colors.get("darker_flame"), "kobold bandit", blocks=True,

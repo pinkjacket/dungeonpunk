@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from game_states import GameStates
-from menus import inventory_menu
+from menus import inventory_menu, level_up_menu, character_screen
 
 
 class RenderOrder(Enum):
@@ -90,6 +90,13 @@ def render_all(con, panel, entities, player, game_map, fov_recompute, root_conso
             inventory_title = "Press the key next to an item to drop it, or Esc to close.\n"
 
         inventory_menu(con, root_console, inventory_title, player.inventory, 50, screen_width, screen_height)
+
+    elif game_state == GameStates.LEVEL_UP:
+        level_up_menu(con, root_console, "You've grown stronger! Choose a stat to raise:", player, 40, screen_width,
+                      screen_height)
+
+    elif game_state == GameStates.CHARACTER_SCREEN:
+        character_screen(root_console, player, 30, 10, screen_width, screen_height)
 
 
 def clear_all(con, entities):
