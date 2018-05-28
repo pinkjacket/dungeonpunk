@@ -19,6 +19,20 @@ def heal(*args, **kwargs):
     return results
 
 
+def xpboost(*args, **kwargs):
+    entity = args[0]
+    colors = args[1]
+    amount = kwargs.get("amount")
+
+    results = []
+
+    entity.level.add_xp(amount)
+    results.append({"consumed": True, "message": Message("You crush the pearl and drink it down with a cap of vinegar. You feel accomplished!",
+                                                         colors.get("silver"))})
+
+    return results
+
+
 def seeker_bolt(*args, **kwargs):
     # autotargets the nearest enemy and blasts it for heavy damage
     caster = args[0]

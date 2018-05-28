@@ -6,8 +6,9 @@ from components.fighter import Fighter
 from components.item import Item
 from components.stairs import Stairs
 from render_functions import RenderOrder
-from item_functions import heal, seeker_bolt, flame_grenade, confuse
+from item_functions import heal, seeker_bolt, flame_grenade, confuse, xpboost
 from game_messages import Message
+from random_utils import random_choice_from_dict
 
 
 class GameMap(Map):
@@ -60,28 +61,31 @@ def place_entities(room, entities, max_monsters_per_room, max_items_per_room, co
     number_of_monsters = randint(0, max_monsters_per_room)
     number_of_items = randint(0, max_items_per_room)
 
+    monster_chances = {"husk": 60,"rusted_automaton": 30, "kobold_bandit": 10}
+    item_chances = {"health_drink": 70, "seeker_orb": 10, "flame_grenade": 10, "scrambler": 5, "pearl": 5}
+
     for i in range(number_of_monsters):
         # get a random location in the room
         x = randint(room.x1 + 1, room.x2 -1)
         y = randint(room.y1 + 1, room.y2 -1)
 
         if not any([entity for entity in entities if entity.x == x and entity.y == y]):
-            choice = randint(0, 100)
-            if choice < 60:
+            monster_choice = random_choice_from_dict(monster_chances)
+            if monster_choice == "husk":
                 fighter_component = Fighter(hp=10, defense=0, power=3, xp=50)
                 ai_component = BasicMonster()
-                # withered husk
+                # husk
 
-                monster = Entity(x, y, "h", colors.get("dark_gray"), "withered husk", blocks=True,
+                monster = Entity(x, y, "h", colors.get("dark_gray"), "husk", blocks=True,
                                  render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
-            elif choice < 60 + 30:
+            elif monster_choice == "rusted_automaton":
                 # rusted automaton
                 fighter_component = Fighter(hp=16, defense=1, power=4, xp=75)
                 ai_component = BasicMonster()
 
                 monster = Entity(x, y, "a", colors.get("brass"), "rusted automaton", blocks=True,
                                  render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
-            else:
+            elif monster_choice == "kobold_bandit":
                 # kobold bandit
                 fighter_component = Fighter(hp=20, defense=0, power=5, xp=100)
                 ai_component = BasicMonster()
@@ -96,26 +100,30 @@ def place_entities(room, entities, max_monsters_per_room, max_items_per_room, co
         y = randint(room.y1 + 1, room.y2 - 1)
 
         if not any([entity for entity in entities if entity.x == x and entity.y == y]):
-            item_chance = randint(0, 100)
+            item_choice = random_choice_from_dict(item_chances)
 
-            if item_chance < 70:
+            if item_choice == "health_drink":
                 item_component = Item(use_function=heal, amount=10)
                 item = Entity(x, y, "!", colors.get("violet"), "health drink", render_order=RenderOrder.ITEM,
                               item=item_component)
-            elif item_chance < 80:
+            elif item_choice == "flame_grenade":
                 item_component = Item(use_function=flame_grenade, targeting=True, targeting_message=Message(
                     "Left-click where you'd like to throw the grenade, or right-click to cancel.",
                     colors.get("light_cyan")), damage=12, radius=3)
-                item = Entity(x, y, "*", colors.get("red"), "flame grenade", render_order=RenderOrder.ITEM,
+                item = Entity(x, y, ".", colors.get("red"), "flame grenade", render_order=RenderOrder.ITEM,
                               item=item_component)
-            elif item_chance < 90:
+            elif item_choice == "scrambler":
                 item_component = Item(use_function=confuse, targeting=True, targeting_message=Message(
                     "Left-click an enemy you'd like to confuse, or right-click to cancel.", colors.get("light_cyan")))
-                item = Entity(x, y, "*", colors.get("light_pink"), "scrambler", render_order=RenderOrder.ITEM,
+                item = Entity(x, y, ".", colors.get("light_pink"), "scrambler", render_order=RenderOrder.ITEM,
                               item=item_component)
-            else:
+            elif item_choice == "pearl":
+                item_component = Item(use_function=xpboost, amount=100)
+                item = Entity(x, y, ".", colors.get("silver"), "pearl", render_order=RenderOrder.ITEM,
+                              item=item_component)
+            elif item_choice == "seeker_orb":
                 item_component = Item(use_function=seeker_bolt, damage=20, maximum_range=5)
-                item = Entity(x, y, "*", colors.get("sky"), "seeker orb", render_order=RenderOrder.ITEM,
+                item = Entity(x, y, ".", colors.get("sky"), "seeker orb", render_order=RenderOrder.ITEM,
                               item=item_component)
 
             entities.append(item)
