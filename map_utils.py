@@ -8,7 +8,7 @@ from components.stairs import Stairs
 from render_functions import RenderOrder
 from item_functions import heal, seeker_bolt, flame_grenade, confuse, xpboost
 from game_messages import Message
-from random_utils import random_choice_from_dict
+from random_utils import random_choice_from_dict, from_dungeon_level
 
 
 class GameMap(Map):
@@ -57,12 +57,23 @@ def create_v_tunnel(game_map, y1, y2, x):
         game_map.transparent[x, y] = True
 
 
-def place_entities(room, entities, max_monsters_per_room, max_items_per_room, colors):
+def place_entities(room, entities, dungeon_level, colors):
+    max_monsters_per_room = from_dungeon_level([[2, 1], [3, 4], [5, 6]], dungeon_level)
+    max_items_per_room = from_dungeon_level([[1, 1], [2, 4]], dungeon_level)
+
     number_of_monsters = randint(0, max_monsters_per_room)
     number_of_items = randint(0, max_items_per_room)
 
-    monster_chances = {"husk": 60,"rusted_automaton": 30, "kobold_bandit": 10}
-    item_chances = {"health_drink": 70, "seeker_orb": 10, "flame_grenade": 10, "scrambler": 5, "pearl": 5}
+    monster_chances = {"husk": 60,
+                       "rusted_automaton": from_dungeon_level([[25, 3], [40, 5], [60, 7]], dungeon_level),
+                       "kobold_bandit": from_dungeon_level([[10, 3], [20, 5], [25, 7]], dungeon_level)
+                    }
+
+    item_chances = {"health_drink": 40,
+                    "seeker_orb": from_dungeon_level([[25, 4]], dungeon_level),
+                    "flame_grenade": from_dungeon_level([[25, 6]], dungeon_level),
+                    "scrambler": from_dungeon_level([[10, 2]], dungeon_level),
+                    "pearl": 10}
 
     for i in range(number_of_monsters):
         # get a random location in the room
@@ -72,7 +83,7 @@ def place_entities(room, entities, max_monsters_per_room, max_items_per_room, co
         if not any([entity for entity in entities if entity.x == x and entity.y == y]):
             monster_choice = random_choice_from_dict(monster_chances)
             if monster_choice == "husk":
-                fighter_component = Fighter(hp=10, defense=0, power=3, xp=50)
+                fighter_component = Fighter(hp=15, defense=0, power=5, xp=50)
                 ai_component = BasicMonster()
                 # husk
 
@@ -80,14 +91,14 @@ def place_entities(room, entities, max_monsters_per_room, max_items_per_room, co
                                  render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
             elif monster_choice == "rusted_automaton":
                 # rusted automaton
-                fighter_component = Fighter(hp=16, defense=1, power=4, xp=75)
+                fighter_component = Fighter(hp=20, defense=2, power=6, xp=75)
                 ai_component = BasicMonster()
 
                 monster = Entity(x, y, "a", colors.get("brass"), "rusted automaton", blocks=True,
                                  render_order=RenderOrder.ACTOR, fighter=fighter_component, ai=ai_component)
             elif monster_choice == "kobold_bandit":
                 # kobold bandit
-                fighter_component = Fighter(hp=20, defense=0, power=5, xp=100)
+                fighter_component = Fighter(hp=35, defense=1, power=8, xp=100)
                 ai_component = BasicMonster()
 
                 monster = Entity(x, y, "b", colors.get("darker_flame"), "kobold bandit", blocks=True,
@@ -103,13 +114,13 @@ def place_entities(room, entities, max_monsters_per_room, max_items_per_room, co
             item_choice = random_choice_from_dict(item_chances)
 
             if item_choice == "health_drink":
-                item_component = Item(use_function=heal, amount=10)
+                item_component = Item(use_function=heal, amount=50)
                 item = Entity(x, y, "!", colors.get("violet"), "health drink", render_order=RenderOrder.ITEM,
                               item=item_component)
             elif item_choice == "flame_grenade":
                 item_component = Item(use_function=flame_grenade, targeting=True, targeting_message=Message(
                     "Left-click where you'd like to throw the grenade, or right-click to cancel.",
-                    colors.get("light_cyan")), damage=12, radius=3)
+                    colors.get("light_cyan")), damage=25, radius=3)
                 item = Entity(x, y, ".", colors.get("red"), "flame grenade", render_order=RenderOrder.ITEM,
                               item=item_component)
             elif item_choice == "scrambler":
@@ -122,15 +133,14 @@ def place_entities(room, entities, max_monsters_per_room, max_items_per_room, co
                 item = Entity(x, y, ".", colors.get("silver"), "pearl", render_order=RenderOrder.ITEM,
                               item=item_component)
             elif item_choice == "seeker_orb":
-                item_component = Item(use_function=seeker_bolt, damage=20, maximum_range=5)
+                item_component = Item(use_function=seeker_bolt, damage=30, maximum_range=5)
                 item = Entity(x, y, ".", colors.get("sky"), "seeker orb", render_order=RenderOrder.ITEM,
                               item=item_component)
 
             entities.append(item)
 
 
-def make_map(game_map, max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities,
-             max_monsters_per_room, max_items_per_room, colors):
+def make_map(game_map, max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, colors):
 
     rooms = []
     num_rooms = 0
@@ -183,7 +193,7 @@ def make_map(game_map, max_rooms, room_min_size, room_max_size, map_width, map_h
                     create_v_tunnel(game_map, prev_y, new_y, prev_x)
                     create_h_tunnel(game_map, prev_x, new_x, new_y)
 
-            place_entities(new_room, entities, max_monsters_per_room, max_items_per_room, colors)
+            place_entities(new_room, entities, game_map.dungeon_level, colors)
 
             rooms.append(new_room)
             num_rooms += 1
@@ -199,8 +209,7 @@ def next_floor(player, message_log, dungeon_level, constants):
     entities = [player]
 
     make_map(game_map, constants["max_rooms"], constants["room_min_size"], constants["room_max_size"],
-             constants["map_width"], constants["map_height"], player, entities, constants["max_monsters_per_room"],
-             constants["max_items_per_room"], constants["colors"])
+             constants["map_width"], constants["map_height"], player, entities, constants["colors"])
 
     player.fighter.heal(player.fighter.max_hp // 2)
 

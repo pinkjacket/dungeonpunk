@@ -27,7 +27,7 @@ def xpboost(*args, **kwargs):
     results = []
 
     entity.level.add_xp(amount)
-    results.append({"consumed": True, "message": Message("You crush the pearl and drink it down with a cap of vinegar. You feel accomplished!",
+    results.append({"consumed": True, "message": Message("You crush the pearl and swallow the powder with a swig from your canteen. You feel accomplished!",
                                                          colors.get("silver"))})
 
     return results
@@ -119,7 +119,7 @@ def confuse(*args, **kwargs):
             entity.ai = confused_ai
 
             results.append({"consumed": True,
-                            "message": Message("The {0}'s expression dulls, as they begin to stumble around!".format(entity.name),
+                            "message": Message("The {0}'s senses are disrupted and they begin to stumble around!".format(entity.name),
                                                colors.get("light_green"))})
             break
     else:
