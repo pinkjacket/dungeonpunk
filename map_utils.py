@@ -2,6 +2,8 @@ from tdl.map import Map
 from random import randint
 from entity import Entity
 from components.ai import BasicMonster
+from components.equipment import EquipmentSlots
+from components.equippable import Equippable
 from components.fighter import Fighter
 from components.item import Item
 from components.stairs import Stairs
@@ -70,6 +72,9 @@ def place_entities(room, entities, dungeon_level, colors):
                     }
 
     item_chances = {"health_drink": 40,
+                    "wicked_blade": from_dungeon_level([[15, 3]], dungeon_level),
+                    "battered_armor": from_dungeon_level([[15, 4]], dungeon_level),
+                    "hp_ring": from_dungeon_level([[10, 5]], dungeon_level),
                     "seeker_orb": from_dungeon_level([[25, 4]], dungeon_level),
                     "flame_grenade": from_dungeon_level([[25, 6]], dungeon_level),
                     "scrambler": from_dungeon_level([[10, 2]], dungeon_level),
@@ -117,6 +122,15 @@ def place_entities(room, entities, dungeon_level, colors):
                 item_component = Item(use_function=heal, amount=50)
                 item = Entity(x, y, "!", colors.get("violet"), "health drink", render_order=RenderOrder.ITEM,
                               item=item_component)
+            elif item_choice == "wicked_blade":
+                equippable_component = Equippable(EquipmentSlots.MAIN_HAND, power_bonus=3)
+                item = Entity(x, y, ")", colors.get("darker_flame"), "wicked blade", equippable=equippable_component)
+            elif item_choice == "battered_armor":
+                equippable_component = Equippable(EquipmentSlots.BODY, defense_bonus=1)
+                item = Entity(x, y, "T", colors.get("darker_orange"), "battered armor", equippable=equippable_component)
+            elif item_choice == "hp_ring":
+                equippable_component = Equippable(EquipmentSlots.RING, max_hp_bonus=30)
+                item = Entity(x, y, "o", colors.get("copper"), "stalwart ring", equippable=equippable_component)
             elif item_choice == "flame_grenade":
                 item_component = Item(use_function=flame_grenade, targeting=True, targeting_message=Message(
                     "Left-click where you'd like to throw the grenade, or right-click to cancel.",
